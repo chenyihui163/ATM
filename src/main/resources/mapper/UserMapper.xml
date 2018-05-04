@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atm.dao.UserMapper" >
+  <resultMap id="BaseResultMap" type="com.atm.entity.User" >
+    <id column="userId" property="userid" jdbcType="INTEGER" />
+    <result column="Username" property="username" jdbcType="VARCHAR" />
+    <result column="Sex" property="sex" jdbcType="VARCHAR" />
+    <result column="Birth" property="birth" jdbcType="TIMESTAMP" />
+    <result column="State" property="state" jdbcType="INTEGER" />
+    <result column="Identity_type" property="identityType" jdbcType="INTEGER" />
+    <result column="Phone" property="phone" jdbcType="VARCHAR" />
+    <result column="Identity_card" property="identityCard" jdbcType="VARCHAR" />
+    <result column="Address" property="address" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <resultMap id="userResultMap" type="com.atm.entity.User">
+    <id column="userId" property="userid" jdbcType="INTEGER" />
+    <result column="Username" property="username" jdbcType="VARCHAR" />
+    <result column="Sex" property="sex" jdbcType="VARCHAR" />
+    <result column="Birth" property="birth" jdbcType="TIMESTAMP" />
+    <result column="State" property="state" jdbcType="INTEGER" />
+    <result column="Identity_type" property="identityType" jdbcType="INTEGER" />
+    <result column="Phone" property="phone" jdbcType="VARCHAR" />
+    <result column="Identity_card" property="identityCard" jdbcType="VARCHAR" />
+    <result column="Address" property="address" jdbcType="VARCHAR" />
+    <association property="account" javaType="com.atm.entity.Account">
+    <id column="aId" property="aid" jdbcType="INTEGER" />
+	<result column="userId" property="userid" jdbcType="INTEGER" />
+	<result column="Password" property="password" jdbcType="VARCHAR" />
+	<result column="Money" property="money" jdbcType="DOUBLE" />
+	<result column="State" property="state" jdbcType="INTEGER" />
+	<result column="Credit_level" property="creditLevel" jdbcType="INTEGER" />
+	<result column="cardId" property="cardid" jdbcType="INTEGER" />
+	<result column="Integral" property="integral" jdbcType="INTEGER" />   
+    </association>
+  
+  </resultMap> 
+  
+   <sql id="Base_Column_List" >
+    userId, Username, Sex, Birth, State, Identity_type, Phone, Identity_card, Address
+  </sql>
+  
+  <select id="selectAccountbyUser" resultMap="userResultMap" parameterType="java.lang.Integer">
+  select *
+  from user u
+  left outer join account a on a.userId =u.userId
+  where a.userId=#{userid,jdbcType=INTEGER}
+  
+  </select>
+  
+  <select id="getByUser" resultMap="BaseResultMap">
+  select * from user where Username =#{Username} and state =1
+  </select>
+  
+  <select id="selectIdentityCard" resultMap="BaseResultMap" parameterType="java.lang.String">
+  select * from user where Identity_card = #{identityCard}
+  </select>
+  
+  <select id="getUserByUsername" resultMap="BaseResultMap">
+   select * from user where Username =#{Username} 
+  </select>
+ 
+ <select id="querryList" resultMap="BaseResultMap" parameterType="Map">
+        select * from user
+        <where>
+            <if test="Username != null and Username.trim() != ''">
+                and Username like concat('%',#{Username},'%')
+            </if>
+            <if test="state != null and state.trim() != ''">
+                AND state=#{state}
+            </if>
+        </where>
+        <choose>
+            <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+            <otherwise>
+                order by userId desc
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="querryTotal" resultType="Integer" parameterType="Map">
+        select count(*) from user
+        <where>
+             <if test="Username != null and Username.trim() != ''">
+                and Username like concat('%',#{Username},'%')
+            </if>
+            <if test="state != null and state.trim() != ''">
+                AND state=#{state}
+            </if>
+        </where>
+    </select>
+ 
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from user
+    where userId = #{userid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from user
+    where userId = #{userid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.atm.entity.User" >
+    insert into user (userId, Username, Sex, 
+      Birth, State, Identity_type, 
+      Phone, Identity_card, Address
+      )
+    values (#{userid,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{sex,jdbcType=VARCHAR}, 
+      #{birth,jdbcType=TIMESTAMP}, #{state,jdbcType=INTEGER}, #{identityType,jdbcType=INTEGER}, 
+      #{phone,jdbcType=VARCHAR}, #{identityCard,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.atm.entity.User" >
+    insert into user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="userid != null" >
+        userId,
+      </if>
+      <if test="username != null" >
+        Username,
+      </if>
+      <if test="sex != null" >
+        Sex,
+      </if>
+      <if test="birth != null" >
+        Birth,
+      </if>
+      <if test="state != null" >
+        State,
+      </if>
+      <if test="identityType != null" >
+        Identity_type,
+      </if>
+      <if test="phone != null" >
+        Phone,
+      </if>
+      <if test="identityCard != null" >
+        Identity_card,
+      </if>
+      <if test="address != null" >
+        Address,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="userid != null" >
+        #{userid,jdbcType=INTEGER},
+      </if>
+      <if test="username != null" >
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="birth != null" >
+        #{birth,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null" >
+        1,
+      </if>
+      <if test="identityType != null" >
+        #{identityType,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="identityCard != null" >
+        #{identityCard,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.atm.entity.User" >
+    update user
+    <set >
+      <if test="username != null" >
+        Username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        Sex = #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="birth != null" >
+        Birth = #{birth,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null" >
+        State = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="identityType != null" >
+        Identity_type = #{identityType,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null" >
+        Phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="identityCard != null" >
+        Identity_card = #{identityCard,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        Address = #{address,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where userId = #{userid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.atm.entity.User" >
+    update user
+    set Username = #{username,jdbcType=VARCHAR},
+      Sex = #{sex,jdbcType=VARCHAR},
+      Birth = #{birth,jdbcType=TIMESTAMP},
+      State = #{state,jdbcType=INTEGER},
+      Identity_type = #{identityType,jdbcType=INTEGER},
+      Phone = #{phone,jdbcType=VARCHAR},
+      Identity_card = #{identityCard,jdbcType=VARCHAR},
+      Address = #{address,jdbcType=VARCHAR}
+    where userId = #{userid,jdbcType=INTEGER}
+  </update>
+</mapper>

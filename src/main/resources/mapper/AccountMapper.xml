@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atm.dao.AccountMapper">
+	<resultMap id="BaseResultMap" type="com.atm.entity.Account">
+	   <id column="aId" property="aid" jdbcType="INTEGER" />		
+		<result column="userId" property="userid" jdbcType="INTEGER" />
+		<result column="Password" property="password" jdbcType="VARCHAR" />
+		<result column="Money" property="money" jdbcType="DOUBLE" />
+		<result column="State" property="state" jdbcType="INTEGER" />
+		<result column="Credit_level" property="creditLevel" jdbcType="INTEGER" />
+		<result column="cardId" property="cardid" jdbcType="INTEGER" />
+		<result column="Integral" property="integral" jdbcType="INTEGER" />
+	</resultMap>
+
+	<resultMap id="accountResultMap" type="com.atm.entity.Account">		
+	   <id column="aId" property="aid" jdbcType="INTEGER" />		
+		<result column="userId" property="userid" jdbcType="INTEGER" />
+		<result column="Money" property="money" jdbcType="DOUBLE" />
+		<result column="State" property="state" jdbcType="INTEGER" />
+		<result column="Credit_level" property="creditLevel" jdbcType="INTEGER" />
+		<result column="cardId" property="cardid" jdbcType="INTEGER" />
+		<result column="Integral" property="integral" jdbcType="INTEGER" />
+		
+		<association property="user" javaType="com.atm.entity.User">
+			<id column="userId" property="userid" jdbcType="INTEGER" />
+			<result column="Username" property="username" jdbcType="VARCHAR" />
+			<result column="Sex" property="sex" jdbcType="VARCHAR" />
+			<result column="Birth" property="birth" jdbcType="TIMESTAMP" />
+			<result column="State" property="state" jdbcType="INTEGER" />
+			<result column="Identity_type" property="identityType"
+				jdbcType="INTEGER" />
+			<result column="Phone" property="phone" jdbcType="VARCHAR" />
+			<result column="Identity_card" property="identityCard"
+				jdbcType="VARCHAR" />
+			<result column="Address" property="address" jdbcType="VARCHAR" />
+		</association>
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		aId, userId, Password, Money, State, Credit_level, cardId,
+		Integral
+	</sql>
+	<select id="selectUserCard_byAccount" resultMap="accountResultMap"
+		parameterType="java.lang.Integer">
+
+		select *
+		from account a
+		left outer join user u on u.userId=a.userId
+		where aId = #{aid,jdbcType=INTEGER}
+
+	</select>
+  
+    <select id="getByAccount" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+    select * from account where aid =#{aid} and state =1
+    </select>
+  
+	<select id="queryList" resultMap="BaseResultMap" parameterType="Map">
+		select * from account
+		<where>
+			<if test="aid !=null and  aid.trim()!='' ">
+				and aid like concat('%',#{aid},'%')
+			</if>
+			<if test="state !=null and  state.trim()!='' ">
+				and state =#{state}
+			</if>
+		</where>
+		<choose>
+			<when test="sidx != null and sidx.trim() != ''">
+				order by ${sidx} ${order}
+			</when>
+			<otherwise>
+				order by aid desc
+			</otherwise>
+		</choose>
+		<if test="offset !=null and limit !=null">
+			limit #{offset},#{limit}
+		</if>
+	</select>
+
+	<select id="queryTotal" resultType="java.lang.Integer" parameterType="Map">
+		select count(*) from account
+		<where>
+			<if test="aid !=null and  aid.trim()!='' ">
+				and aid =#{aid}
+			</if>
+			<if test="state !=null and  state.trim()!='' ">
+				and state =#{state}
+			</if>
+		</where>
+	</select>
+
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from account
+		where aId = #{aid,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		account
+		where aId = #{aid,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="com.atm.entity.Account">
+		insert into account (aId,
+		userId, Password,
+		Money, State, Credit_level,
+		cardId, Integral)
+		values
+		(#{aid,jdbcType=INTEGER}, #{userid,jdbcType=INTEGER},
+		#{password,jdbcType=VARCHAR},
+		#{money,jdbcType=DOUBLE},
+		#{state,jdbcType=INTEGER}, #{creditLevel,jdbcType=INTEGER},
+		#{cardid,jdbcType=INTEGER}, #{integral,jdbcType=INTEGER})
+	</insert>
+	<insert id="insertSelective" parameterType="com.atm.entity.Account">
+		insert into account
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="aid != null">
+				aId,
+			</if>
+			<if test="userid != null">
+				userId,
+			</if>
+			<if test="password != null">
+				Password,
+			</if>
+			<if test="money != null">
+				Money,
+			</if>
+			<if test="state != null">
+				State,
+			</if>
+			<if test="creditLevel != null">
+				Credit_level,
+			</if>
+			<if test="cardid != null">
+				cardId,
+			</if>
+			<if test="integral != null">
+				Integral,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="aid != null">
+				#{aid,jdbcType=INTEGER},
+			</if>
+			<if test="userid != null">
+				#{userid,jdbcType=INTEGER},
+			</if>
+			<if test="password != null">
+				#{password,jdbcType=VARCHAR},
+			</if>
+			<if test="money != null">
+				#{money,jdbcType=DOUBLE},
+			</if>
+			<if test="state != null">
+				0,
+			</if>
+			<if test="creditLevel != null">
+				#{creditLevel,jdbcType=INTEGER},
+			</if>
+			<if test="cardid != null">
+				#{cardid,jdbcType=INTEGER},
+			</if>
+			<if test="integral != null">
+				#{integral,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.atm.entity.Account">
+		update account
+		<set>
+			<if test="userid != null">
+				userId = #{userid,jdbcType=INTEGER},
+			</if>
+			<if test="password != null">
+				Password = #{password,jdbcType=VARCHAR},
+			</if>
+			<if test="money != null">
+				Money = #{money,jdbcType=DOUBLE},
+			</if>
+			<if test="state != null">
+				State = #{state,jdbcType=INTEGER},
+			</if>
+			<if test="creditLevel != null">
+				Credit_level = #{creditLevel,jdbcType=INTEGER},
+			</if>
+			<if test="cardid != null">
+				cardId = #{cardid,jdbcType=INTEGER},
+			</if>
+			<if test="integral != null">
+				Integral = #{integral,jdbcType=INTEGER},
+			</if>
+		</set>
+		where aId = #{aid,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.atm.entity.Account">
+		update account
+		set
+		userId = #{userid,jdbcType=INTEGER},
+		Password =
+		#{password,jdbcType=VARCHAR},
+		Money = #{money,jdbcType=DOUBLE},
+		State =
+		#{state,jdbcType=INTEGER},
+		Credit_level =
+		#{creditLevel,jdbcType=INTEGER},
+		cardId = #{cardid,jdbcType=INTEGER},
+		Integral = #{integral,jdbcType=INTEGER}
+		where aId =
+		#{aid,jdbcType=INTEGER}
+	</update>
+</mapper>

@@ -1,0 +1,18 @@
+.logo-container{
+    right: 50px;
+    position: absolute;
+    top: 20px;
+    z-index: 3;
+}
+.logo{
+	float:left;
+	 line-height: 30px;
+}
+.logo-container .exit{
+    font-size: 16px;  
+    line-height: 20px;
+    float: left;
+    margin-left: 10px;
+    margin-top: 10px;
+    width: 60px
+}
